@@ -5,7 +5,7 @@
 <title>错误页面</title>
 <script>
 setTimeout(function(){
-	location.href="index.php";
+	location.href="login.php";
 },3000);
 </script>
 </head>
