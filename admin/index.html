@@ -1,0 +1,314 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>青春色彩留言板</title>
+<link rel="stylesheet" href="../css/index.css" />
+<script src="../js/jquery-1.11.0.min.js"></script>
+<script>
+$(function(){
+	//页数
+	var rscount=0;
+	var pagecount=1;
+	var page=1;
+	
+	
+    //鉴权:
+    $.ajax({
+                url:"check.php",
+                type:"GET",
+				cache:false,
+                headers:{"token":localStorage.getItem("jwt")},
+                dataType:"json",
+                success:function(data){
+                    if(data.result=="success"){
+                       $("#adminName").html(data.info.data.adminName);
+						
+	//总记录数接口
+	$.ajax({
+		 url:"../rscount.php",
+		 type:"post",
+		 dataType:"json",
+		 success: function(data){
+		    rscount=data.rscount;
+			pagecount=Math.ceil(rscount/5);	 
+		 }
+	});
+	//页面初始化，显示已经经过授权的留言
+	$.ajax({
+	   url:"message.php",
+	   type:"post",
+	   data:{page:page},
+	   dataType:"json",
+	   cache:false,
+	   success: function(data){
+		   var str='<ul>';
+		   if(data.status=='10001'){
+			  $.each(data.data,function(index,value){
+					str+='<li id="first" data-id="'+value.messageId+'">'+value.messageId+'楼:'+value.author+'</li>'
+					+'<li id="content" data-id="'+value.messageId+'">'+value.content+'</li>'
+					+(value.reply!=null?'<li id="reply" data-id="'+value.messageId+'"><span>管理员回复：'+value.reply+"</span></li>":"")
+					   +'<li class="sh" id="shenhe" data-id="'+value.messageId+'">审核状态:'+(value.flag==0?'<span data-id="'+value.messageId+'">'+"未审核</span>":"已审核")+"</li>"			   
+					   +
+					   '<li id="huifuliuyan" data-id="'+value.messageId+'"><a href="javascript:;" class="delete" id="delete" data-id="'+value.messageId+'">删除</a>| '+
+					   '<a href="javascript:;" class="replyValue" data-id="'+value.messageId+'">回复留言</a></li>'
+					  	+'<li id="time" data-id="'+value.messageId+'">'+value.addTime+'</li>';			  
+			  }); 
+			  str+='</ul>'; 
+			  $(".table-hover").html(str);   
+			  sh();
+			  deleteMessage();
+			  replyMessage();
+		   }else{
+			  str="<tr><td>"+data.msg+"</td></tr>"
+			  $(".table-hover").html(str);   
+		   }
+	   }	
+	});  
+	//下一页:
+	 var flag=true;
+	$("#page a:last").click(function(){
+		   var str='<ul>';
+		  if(page>pagecount){
+			  page=pagecount;
+		  }else{
+			  if(page<pagecount){
+				  page=page+1;
+			  }else{
+				  flag=false;
+			  }
+			if(page<=pagecount && flag){
+				  $.ajax({
+			      url:"message.php",
+			      type:"post" ,
+			      data:{page:page},
+			      dataType:"json",
+			      success: function(data){
+				   $.each(data.data,function(index,value){
+					str+='<li id="first" data-id="'+value.messageId+'">'+value.messageId+'楼:'+value.author+'</li>'
+					+'<li id="content" data-id="'+value.messageId+'">'+value.content+'</li>'
+					+(value.reply!=null?'<li id="reply" data-id="'+value.messageId+'"><span>管理员回复：'+value.reply+"</span></li>":"")
+					   +'<li class="sh" id="shenhe" data-id="'+value.messageId+'">审核状态:'+(value.flag==0?'<span data-id="'+value.messageId+'">'+"未审核</span>":"已审核")+"</li>"			   
+					   +
+					   '<li id="huifuliuyan" data-id="'+value.messageId+'"><a href="javascript:;" class="delete" id="delete" data-id="'+value.messageId+'">删除</a>| '+
+					   '<a href="javascript:;" class="replyValue" data-id="'+value.messageId+'">回复留言</a></li>'
+					  	+'<li id="time" data-id="'+value.messageId+'">'+value.addTime+'</li>';			  
+			  }); 
+			  str+='</ul>'; 
+			  $(".table-hover").html(str);   
+			  sh();
+			  deleteMessage();
+			  replyMessage();
+			}
+		  });
+		}
+	 }	
+	});
+
+
+		//上一页:
+
+		var flag1=true;
+	   $("#page a:first").click(function(){
+		   var str='<ul>';
+		  if(page<1){
+			  page=1;
+			 }else{
+			  if(page>1){
+				  page=page-1;
+				  }else{
+					  flag1=false;
+				  }
+			if(page>=1 && flag1){
+				   $.ajax({
+			      url:"message.php",
+			      type:"post" ,
+			      data:{page:page},
+			      dataType:"json",
+			      success: function(data){
+				   $.each(data.data,function(index,value){
+					str+='<li id="first" data-id="'+value.messageId+'">'+value.messageId+'楼:'+value.author+'</li>'
+					+'<li id="content" data-id="'+value.messageId+'">'+value.content+'</li>'
+					+(value.reply!=null?'<li id="reply" data-id="'+value.messageId+'"><span>管理员回复：'+value.reply+"</span></li>":"")
+					   +'<li class="sh" id="shenhe" data-id="'+value.messageId+'">审核状态:'+(value.flag==0?'<span data-id="'+value.messageId+'">'+"未审核</span>":"已审核")+"</li>"			   
+					   +
+					   '<li id="huifuliuyan" data-id="'+value.messageId+'"><a href="javascript:;" class="delete" id="delete" data-id="'+value.messageId+'">删除</a>| '+
+					   '<a href="javascript:;" class="replyValue" data-id="'+value.messageId+'">回复留言</a></li>'
+					  	+'<li id="time" data-id="'+value.messageId+'">'+value.addTime+'</li>';			  
+			  }); 
+			  str+='</ul>'; 
+			  $(".table-hover").html(str);   
+			  sh();
+			  deleteMessage();
+			  replyMessage();
+			}
+		  });
+       }
+	 }	
+	});
+
+						
+						//鉴权成功
+                    }else{
+                       location.href="error.php";
+                    }
+                }
+            });
+	//留言通过，审核功能
+    function sh(){
+	  	$(".sh span").click(function(){
+		 var _this=$(this);//存储this对象
+	   $.ajax({
+		  url:"check.php",
+	      type:"GET",
+		  headers:{"token":localStorage.getItem("jwt")},
+	      dataType:"json",
+	      success:function(data){
+		    if(data.result=='success'){
+			     $.ajax({
+					 url:"sh.php",
+					 headers:{"token":localStorage.getItem("jwt")},
+					 type:"POST",
+					 data:{messageId:_this.attr("data-id")},
+					 dataType:"json",
+					 success: function(data){
+					    	if(data.status=='10001'){
+							    _this.html("已审核");
+								_this.parent("li").removeClass("sh");	
+							}
+				     }
+					 
+				  });
+			}
+		  }   
+	   });
+		
+	  });	
+	}
+	//删除留言功能:
+	function deleteMessage(){
+	  	$(".delete").click(function(){
+		 var _this=$(this);
+	   $.ajax({
+		  url:"check.php",
+	      type:"GET",
+		  headers:{"token":localStorage.getItem("jwt")},
+	      dataType:"json",
+	      success:function(data){
+		    if(data.result=='success'){
+			     $.ajax({
+					 url:"reply.php",
+					 headers:{"token":localStorage.getItem("jwt")},
+					 type:"POST",
+					 data:{messageId:_this.attr("data-id")},
+					 dataType:"json",
+					 success: function(data){
+					    	if(data.status=='10001'){
+								_this.parents("li").add($(_this.parents("li").siblings("li"+'[data-id='+_this.attr("data-id")+']'))).remove();
+							   ;
+							}else{
+								alert(data.message);
+							}
+				     }
+					 
+				  });
+			}
+		  }   
+	   });
+		
+	  });	
+	}
+	//回复留言功能:
+
+	function replyMessage(){
+		
+	  	$(".replyValue").click(function(){
+			var _this=$(this);//存储this对象
+	        console.log("_this",_this);
+			   $("#replyMessage").show();
+			   $("#mask").show();
+			   $("#replyBtn").one("click",function(){//不用one的话，每次点击回复.replyValue,都会#replyBtn绑定事件
+				$.ajax({
+						url:"check.php",
+						type:"GET",
+						headers:{"token":localStorage.getItem("jwt")},
+						dataType:"json",
+						success:function(data){
+							if(data.result=='success'){
+								$.ajax({
+									url:"reply.php",
+									headers:{"token":localStorage.getItem("jwt")},
+									type:"POST",
+									data:{messageId:_this.attr("data-id"),reply:$("#replyContent").val()},
+									dataType:"json",
+									success: function(data){
+											if(data.status=='10001'){
+											  //回复留言
+											 
+											  _this.parents("li").siblings("li"+'[data-id='+_this.attr("data-id")+']').filter("#content")
+											  .after('<li id="reply" data-id='+_this.attr("data-id")+'>管理员回复到:'+$("#replyContent").val()+'</li>');
+											  $("#replyMessage").hide();
+											  $("#replyContent").val("");
+											   $("#mask").hide();
+											  
+											}else{
+												alert(data.message);
+											}
+									}
+									
+								});
+							}
+						}   
+					});
+});
+
+		 //取消留言:
+		    $("#cannel").click(function(){
+				$("#replyMessage").hide();
+			      $("#mask").hide();
+
+			});
+		
+	 
+		
+	  });	
+	}
+	//注销
+	$("#loginout").click(function(){
+	  	 localStorage.removeItem("jwt");
+		 location.href="../index.html";
+	});
+});
+</script>
+</head>
+
+
+<body>
+
+<div id="mask"></div>
+<div id="replyMessage">
+    <textarea id="replyContent" cols="36" rows="8" style="resize:none" maxlength="200" placeholder="输入的内容不能超过200字符"></textarea><br />
+    <input type="button" class="btn btn-default" id="cannel" value="取消" />
+    <input type="button" class="btn btn-default" id="replyBtn" value="发布留言" />
+</div>
+
+
+<div id="top">
+	<p>管理系统</p>
+	<a href="javascript:;" id="loginout">注销</a>
+</div>
+
+
+<table class="table table-hover">
+</table>
+
+
+<div id="page">
+   <a href="javascript:;" class="btn btn-info">上一页</a>
+   <a href="javascript:;" class="btn btn-info">下一页</a>
+</div>
+
+
+</body>
+</html>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<link rel="stylesheet" href="../css/login.css" />
+<script src="../js/jquery-1.11.0.min.js"></script>
+    <script>
+      $(function(){
+        $("#bt1").click(function(){
+            $.ajax({
+                url:"check.php?action=login",
+                type:"POST",
+                data:{adminName:$("#adminName").val(),adminPwd:$("#adminPwd").val()},
+                dataType:"json",
+                success:function(data){
+                    if(data.result=="success"){
+                        localStorage.setItem("jwt",data.jwt);
+                        location.href="index.html";
+                    }
+                }
+            });
+        });
+      });
+    </script>
+</head>
+
+<body>
+<form action="check.php" method="post" autocomplete="off">
+账号：<input type="text" id="adminName" autofocus/><br />
+密码：<input type="password" id="adminPwd" /><br />
+<input type="button" id="bt1" value="登录" />
+</form>
+
+</body>
+</html>

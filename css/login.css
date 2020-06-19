@@ -1,0 +1,41 @@
+body{
+	background:url(../img/bg.jpg) no-repeat;
+	background-size:1537px 840px;
+}
+form{ 
+	width:320px;
+    height:150px;
+	padding-top:20px;
+	margin:280px auto;
+	background:#117D75;
+	border:3px solid #FFF;
+	border-radius:20px;
+	text-align:center;
+	color:#fff;
+}
+input[type=text],input[type=password]{
+	width:150px;
+	height:18px;
+	border:1px solid #AAECB4;
+	padding:2px 2px 2px 22px;
+	margin-top:15px;
+}
+input[type=text]{
+	background:url(../img/1.png) no-repeat 5px #fff;
+}
+input#username{
+	background:url(../img/3.png) no-repeat 5px #fff;
+}
+input[type=password]{
+	background:url(../img/2.png) no-repeat 5px #fff;
+}
+input[type=submit],input[type=button]{
+	margin-top:25px;
+	border:1px solid #d3facd;
+	background:#99eaa2;
+	border-radius:5px;
+	padding:3px 7px;
+	cursor:pointer;
+	margin-left:10px;
+	margin-right:10px;
+}
